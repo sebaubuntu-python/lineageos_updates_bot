@@ -97,9 +97,15 @@ class LineageOSUpdatesBot:
 	# Command handlers
 
 	async def start(self, update: Update, context: CallbackContext):
+		if not update.message:
+			return
+
 		await update.message.reply_text("LineageOS updates bot up and running")
 
 	async def device_info(self, update: Update, context: CallbackContext):
+		if not update.message:
+			return
+
 		if not context.args or len(context.args) < 1:
 			await update.message.reply_text("Device codename not specified")
 			return
@@ -114,6 +120,9 @@ class LineageOSUpdatesBot:
 		await update.message.reply_text(f"{device_data}", disable_web_page_preview=True)
 
 	async def lineageos(self, update: Update, context: CallbackContext):
+		if not update.message:
+			return
+
 		if not context.args or len(context.args) < 1:
 			await update.message.reply_text("Device codename not specified")
 			return
@@ -133,7 +142,10 @@ class LineageOSUpdatesBot:
 										parse_mode=ParseMode.MARKDOWN_V2)
 
 	async def lineageos_updates(self, update: Update, context: CallbackContext):
-		if not self.user_is_admin(update.message.from_user.id):
+		if not update.message:
+			return
+
+		if not update.message.from_user or not self.user_is_admin(update.message.from_user.id):
 			await update.message.reply_text("Error: You are not authorized to use this command")
 			return
 
@@ -158,6 +170,9 @@ class LineageOSUpdatesBot:
 		await func(update, context)
 
 	async def when(self, update: Update, context: CallbackContext):
+		if not update.message:
+			return
+
 		if not context.args or len(context.args) < 1:
 			await update.message.reply_text("Device codename not specified")
 			return
@@ -185,6 +200,9 @@ class LineageOSUpdatesBot:
 
 	# lineageos_update functions
 	async def disable(self, update: Update, context: CallbackContext):
+		if not update.message:
+			return
+
 		if not self.observer:
 			await update.message.reply_text("Observer not ready yet")
 			return
@@ -193,6 +211,9 @@ class LineageOSUpdatesBot:
 		await update.message.reply_text("Observer disabled")
 
 	async def enable(self, update: Update, context: CallbackContext):
+		if not update.message:
+			return
+
 		if not self.observer:
 			await update.message.reply_text("Observer not ready yet")
 			return
@@ -201,6 +222,9 @@ class LineageOSUpdatesBot:
 		await update.message.reply_text("Observer enabled")
 
 	async def dump(self, update: Update, context: CallbackContext):
+		if not update.message:
+			return
+
 		if not self.observer:
 			await update.message.reply_text("Observer not ready yet")
 			return
@@ -227,6 +251,9 @@ class LineageOSUpdatesBot:
 			await update.message.reply_text(caption)
 
 	async def set_start_date(self, update: Update, context: CallbackContext):
+		if not update.message:
+			return
+
 		if not self.observer:
 			await update.message.reply_text("Observer not ready yet")
 			return
@@ -246,6 +273,9 @@ class LineageOSUpdatesBot:
 		await update.message.reply_text(f"Start date set to {date.strftime('%Y/%m/%d, %H:%M:%S')}")
 
 	async def test_post(self, update: Update, context: CallbackContext):
+		if not update.message:
+			return
+
 		if not context.args or len(context.args) < 2:
 			await update.message.reply_text("Error: No device provided")
 			return

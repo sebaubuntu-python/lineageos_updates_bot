@@ -4,9 +4,10 @@
 # SPDX-License-Identifier: MIT
 #
 
+from humanize import naturalsize
 from liblineage.constants.versions import LINEAGEOS_TO_ANDROID_VERSION
-from liblineage.ota.full_update_info import FullUpdateInfo
-from liblineage.wiki.device_data import DeviceData
+from liblineage.updater.v2 import AsyncV2Api
+from liblineage.updater.v2.build import Build
 from sebaubuntu_libs.liblogging import LOGE
 from telegram import Bot
 from telegram.constants import ParseMode
@@ -14,21 +15,38 @@ from telegram.helpers import escape_markdown
 from typing import Union
 
 class Poster:
-	async def post(self, codename: str, update: FullUpdateInfo, bot: Bot, chat_id: Union[str, int]):
+	async def post(self, codename: str, update: Build, bot: Bot, chat_id: Union[str, int]):
 		chat = await bot.get_chat(chat_id=chat_id)
-		device_data = DeviceData.get_device_data(codename)
+		device_data = await AsyncV2Api.get_device(codename)
+		lineageos_version = device_data.versions[0]
+
 		text = (
-			f"{escape_markdown(f'#{codename}', 2)} {escape_markdown(f'#{LINEAGEOS_TO_ANDROID_VERSION[update.version].version_short.lower()}', 2)}\n"
-			f"*LineageOS {escape_markdown(update.version, 2)} for {escape_markdown(device_data.vendor, 2)} {escape_markdown(device_data.name, 2)} {escape_markdown(f'({codename})', 2)}*\n"
+			f"{escape_markdown(f'#{codename}', 2)} {escape_markdown(f'#{LINEAGEOS_TO_ANDROID_VERSION[lineageos_version].version_short.lower()}', 2)}\n"
+			f"*LineageOS {escape_markdown(lineageos_version, 2)} for {escape_markdown(f'{device_data.oem} {device_data.name} ({codename})', 2)}*\n"
 			f"\n"
-			f"Build date: {escape_markdown(update.datetime.strftime('%Y/%m/%d'), 2)}\n"
-			f"Download: [Here]({escape_markdown(f'https://download.lineageos.org/{codename}', 2)})\n"
-			f"Device wiki page: [Here]({escape_markdown(f'https://wiki.lineageos.org/devices/{codename}', 2)})\n"
-			f"Installation instructions: [Here]({escape_markdown(f'https://wiki.lineageos.org/devices/{codename}/install', 2)})\n"
+			f"Device informations: [Here]({escape_markdown(device_data.info_url, 2)})\n"
+			f"Installation instructions: [Here]({escape_markdown(device_data.install_url, 2)})\n"
 			f"\n"
+			f"Date: {escape_markdown(update.date, 2)}\n"
+			f"Download: [{escape_markdown(update.ota_zip.filename, 2)}]({escape_markdown(update.ota_zip.url, 2)}) {escape_markdown(f'({naturalsize(update.ota_zip.size)})', 2)}\n"
 		)
+
+		additional_files = update.files[1:]
+
+		if additional_files:
+			text += (
+				"\n"
+				"Additional files:\n"
+			)
+
+		for file in additional_files:
+			text += (
+				f"[{escape_markdown(file.filename, 2)}]({escape_markdown(file.url, 2)}) {escape_markdown(f'({naturalsize(file.size)})', 2)}\n"
+			)
+
 		if chat.username:
 			text += (
+				"\n"
 				f"@{escape_markdown(chat.username, 2)}\n"
 			)
 

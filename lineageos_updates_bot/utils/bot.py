@@ -7,8 +7,9 @@
 from asyncio import CancelledError, Task, get_event_loop
 from datetime import datetime
 from humanize import naturalsize
-from liblineage.device import Device
-from liblineage.ota.full_update_info import FullUpdateInfo
+from liblineage.hudson.build_target import BuildTarget
+from liblineage.updater.v2 import AsyncV2Api
+from liblineage.wiki.device_data import DeviceData
 from telegram import Update
 from telegram.constants import ParseMode
 from telegram.ext import Application, CallbackContext, CommandHandler
@@ -110,9 +111,10 @@ class LineageOSUpdatesBot:
 			await update.message.reply_text("Device codename not specified")
 			return
 
-		device = Device(context.args[0])
+		codename = context.args[0]
+
 		try:
-			device_data = device.get_device_data()
+			device_data = DeviceData.get_device_data(codename)
 		except Exception:
 			await update.message.reply_text("Error: Device not found")
 			return
@@ -127,19 +129,48 @@ class LineageOSUpdatesBot:
 			await update.message.reply_text("Device codename not specified")
 			return
 
-		device = Device(context.args[0])
-		nightlies = device.get_nightlies()
-		if not nightlies:
-			await update.message.reply_text(f"Error: no updates found for {device.codename}")
+		codename = context.args[0]
+
+		try:
+			device_info = await AsyncV2Api.get_device(codename)
+		except Exception:
+			await update.message.reply_text("Error: Device not found")
+			return
+		
+		if not device_info.versions:
+			await update.message.reply_text(f"No LineageOS versions found for {codename}")
 			return
 
-		last_update = nightlies[-1]
-		await update.message.reply_text(f"Last update for {escape_markdown(device.codename, 2)}:\n"
-										f"Version: {escape_markdown(last_update.version, 2)}\n"
-										f"Date: {last_update.datetime.strftime('%Y/%m/%d')}\n"
-										f"Size: {escape_markdown(naturalsize(last_update.size), 2)}\n"
-										f"Download: [{escape_markdown(last_update.filename, 2)}]({escape_markdown(last_update.url, 2)})",
-										parse_mode=ParseMode.MARKDOWN_V2)
+		builds = await AsyncV2Api.get_device_builds(codename)
+		if not builds:
+			await update.message.reply_text(f"Error: no updates found for {codename}")
+			return
+
+		last_update = builds[0]
+		for build in builds:
+			if build.datetime > last_update.datetime:
+				last_update = build
+
+		text = (
+			f"Last build for {escape_markdown(device_info.oem, 2)} {escape_markdown(device_info.name, 2)} {escape_markdown(f'({codename})', 2)}:\n"
+			f"Date: {escape_markdown(last_update.date, 2)}\n"
+			f"Download: [{escape_markdown(last_update.ota_zip.filename, 2)}]({escape_markdown(last_update.ota_zip.url, 2)}) {escape_markdown(f'({naturalsize(last_update.ota_zip.size)})', 2)}\n"
+		)
+
+		additional_files = last_update.files[1:]
+
+		if additional_files:
+			text += (
+				"\n"
+				"Additional files:\n"
+			)
+
+		for file in additional_files:
+			text += (
+				f"[{escape_markdown(file.filename, 2)}]({escape_markdown(file.url, 2)}) {escape_markdown(f'({naturalsize(file.size)})', 2)}\n"
+			)
+
+		await update.message.reply_text(text, parse_mode=ParseMode.MARKDOWN_V2)
 
 	async def lineageos_updates(self, update: Update, context: CallbackContext):
 		if not update.message:
@@ -177,22 +208,25 @@ class LineageOSUpdatesBot:
 			await update.message.reply_text("Device codename not specified")
 			return
 
-		device = Device(context.args[0])
+		codename = context.args[0]
 
 		try:
-			device_data = device.get_device_data()
+			device_data = await AsyncV2Api.get_device(codename)
 		except Exception:
-			device_data = None
-
-		try:
-			build_target = device.get_hudson_build_target()
-		except Exception:
-			await update.message.reply_text(f"Error: Device {'unmaintained' if device_data else 'not found'}")
+			await update.message.reply_text(f"Error: Device not found")
 			return
 
-		device_info = (f"{device_data.vendor} {device_data.name} ({device_data.codename})"
-					if device_data
-					else f"{device.codename}")
+		try:
+			build_target = BuildTarget.get_device(codename)
+		except Exception:
+			await update.message.reply_text(f"Error: Device not found")
+			return
+
+		device_info = (
+			f"{device_data.oem} {device_data.name} ({codename})"
+			if device_data
+			else f"{codename}"
+		)
 
 		await update.message.reply_text(
 			f"The next build for {device_info} will be on {build_target.get_next_build_date()}"
@@ -284,7 +318,7 @@ class LineageOSUpdatesBot:
 		chat_id = update.message.chat_id
 
 		try:
-			response = FullUpdateInfo.get_nightlies(device)
+			response = await AsyncV2Api.get_device_builds(device)
 		except Exception:
 			response = []
 
@@ -292,7 +326,10 @@ class LineageOSUpdatesBot:
 			await update.message.reply_text(f"No updates for {device}")
 			return
 
-		last_update = response[-1]
+		last_update = response[0]
+		for build in response:
+			if build.datetime > last_update.datetime:
+				last_update = build
 
 		build_date = last_update.datetime
 

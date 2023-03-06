@@ -6,8 +6,7 @@
 
 from asyncio import Event, sleep
 from datetime import datetime
-from liblineage.hudson.build_target import BuildTarget
-from liblineage.ota.full_update_info import FullUpdateInfo
+from liblineage.updater.v2 import AsyncV2Api, SyncV2Api
 from sebaubuntu_libs.libexception import format_exception
 from sebaubuntu_libs.liblogging import LOGE, LOGI
 from telegram import Bot
@@ -25,22 +24,25 @@ class Observer:
 		self.last_device_post: Dict[str, datetime] = {}
 
 		now = datetime.now()
-		for build_target in BuildTarget.get_lineage_build_targets():
-			self.last_device_post[build_target.device] = now
+		for build_target in self._get_build_targets():
+			self.last_device_post[build_target] = now
 
 	async def observe(self):
 		while True:
 			await self.event.wait()
 
 			try:
-				build_targets = BuildTarget.get_lineage_build_targets()
+				oems = await AsyncV2Api.get_oems()
+				build_targets = {
+					device.model for oem in oems for device in oem.devices
+				}
 			except Exception as e:
 				LOGE(f"Can't get build targets: {format_exception(e)}")
 				continue
 
-			for device in [build_target.device for build_target in build_targets]:
+			for device in build_targets:
 				try:
-					response = FullUpdateInfo.get_nightlies(device)
+					response = await AsyncV2Api.get_device_builds(device)
 				except Exception:
 					response = []
 
@@ -48,7 +50,10 @@ class Observer:
 					LOGI(f"No updates for {device}")
 					continue
 
-				last_update = response[-1]
+				last_update = response[0]
+				for update in response:
+					if update.datetime > last_update.datetime:
+						last_update = update
 
 				build_date = last_update.datetime
 				if device in self.last_device_post and build_date <= self.last_device_post[device]:
@@ -66,5 +71,12 @@ class Observer:
 			await sleep(10 * 60)
 
 	def set_start_date(self, date: datetime):
-		for build_target in BuildTarget.get_lineage_build_targets():
-			self.last_device_post[build_target.device] = date
+		for build_target in self._get_build_targets():
+			self.last_device_post[build_target] = date
+
+	@staticmethod
+	def _get_build_targets():
+		oems = SyncV2Api.get_oems()
+		return {
+			device.model for oem in oems for device in oem.devices
+		}

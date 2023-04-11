@@ -25,7 +25,6 @@ class Poster:
 			f"*LineageOS {escape_markdown(lineageos_version, 2)} for {escape_markdown(f'{device_data.oem} {device_data.name} ({codename})', 2)}*\n"
 			f"\n"
 			f"Device informations: [Here]({escape_markdown(device_data.info_url, 2)})\n"
-			f"Installation instructions: [Here]({escape_markdown(device_data.install_url, 2)})\n"
 			f"\n"
 			f"Date: {escape_markdown(update.date, 2)}\n"
 			f"Download: [{escape_markdown(update.ota_zip.filename, 2)}]({escape_markdown(update.ota_zip.url, 2)}) {escape_markdown(f'({naturalsize(update.ota_zip.size)})', 2)}\n"

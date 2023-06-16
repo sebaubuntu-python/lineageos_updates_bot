@@ -14,7 +14,7 @@ from telegram import Update
 from telegram.constants import ParseMode
 from telegram.ext import Application, CallbackContext, CommandHandler
 from telegram.helpers import escape_markdown
-from typing import Optional, Union
+from typing import Dict, Optional, Union
 
 import config
 from lineageos_updates_bot.utils.observer import Observer
@@ -113,13 +113,40 @@ class LineageOSUpdatesBot:
 
 		codename = context.args[0]
 
+		device_data: Optional[DeviceData] = None
+		variants: Dict[str, DeviceData] = {}
+
 		try:
 			device_data = DeviceData.get_device_data(codename)
 		except Exception:
-			await update.message.reply_text("Error: Device not found")
-			return
+			pass
 
-		await update.message.reply_text(f"{device_data}", disable_web_page_preview=True)
+		if not device_data:
+			# Retry with 'variant_1'
+			try:
+				variant_index = 1
+				while True:
+					variant_codename = f"{codename}_variant{variant_index}"
+					variant = DeviceData.get_device_data(variant_codename)
+					variants[variant_codename] = variant
+					variant_index += 1
+			except Exception:
+				pass
+
+		if device_data:
+			await update.message.reply_text(f"{device_data}", disable_web_page_preview=True)
+		elif len(variants) > 0:
+			text = "\n".join([
+				"There are multiple variants for this device:",
+				*[
+					f"\\- {escape_markdown(codename, 2)}: {escape_markdown(f'{device_data.vendor} {device_data.name}', 2)}"
+					for codename, device_data in variants.items()
+				],
+				"Please use the variant codename instead of the device codename"
+			])
+			await update.message.reply_text(text, parse_mode=ParseMode.MARKDOWN_V2)
+		else:
+			await update.message.reply_text("Error: Device not found")
 
 	async def lineageos(self, update: Update, context: CallbackContext):
 		if not update.message:

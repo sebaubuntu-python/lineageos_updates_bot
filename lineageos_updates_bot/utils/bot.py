@@ -116,8 +116,13 @@ class LineageOSUpdatesBot:
 		try:
 			device_data = DeviceData.get_device_data(codename)
 		except Exception:
-			await update.message.reply_text("Error: Device not found")
-			return
+			try:
+				# Retry with 'variant_1'
+				# ToDo: Implement other variants
+				device_data = DeviceData.get_device_data(f"{codename}_variant1")
+			except Exception:
+				await update.message.reply_text("Error: Device not found")
+				return
 
 		await update.message.reply_text(f"{device_data}", disable_web_page_preview=True)
 

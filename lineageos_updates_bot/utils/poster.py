@@ -18,7 +18,7 @@ class Poster:
 	async def post(self, codename: str, update: Build, bot: Bot, chat_id: Union[str, int]):
 		chat = await bot.get_chat(chat_id=chat_id)
 		device_data = await AsyncV2Api.get_device(codename)
-		lineageos_version = device_data.versions[0]
+		lineageos_version = device_data.versions[-1]
 
 		text = (
 			f"{escape_markdown(f'#{codename}', 2)} {escape_markdown(f'#{LINEAGEOS_TO_ANDROID_VERSION[lineageos_version].version_short.lower()}', 2)}\n"

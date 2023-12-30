@@ -8,11 +8,13 @@ from humanize import naturalsize
 from liblineage.constants.versions import LINEAGEOS_TO_ANDROID_VERSION
 from liblineage.updater.v2 import AsyncV2Api
 from liblineage.updater.v2.build import Build
-from sebaubuntu_libs.liblogging import LOGE
+from sebaubuntu_libs.libexception import format_exception
 from telegram import Bot
 from telegram.constants import ParseMode
 from telegram.helpers import escape_markdown
 from typing import Union
+
+from lineageos_updates_bot.utils.logging import log
 
 class Poster:
 	async def post(self, codename: str, update: Build, bot: Bot, chat_id: Union[str, int]):
@@ -52,9 +54,15 @@ class Poster:
 		try:
 			await chat.send_message(text, parse_mode=ParseMode.MARKDOWN_V2)
 		except Exception as e:
-			LOGE(
-				f"Error: {e}\n"
-				f"{text}\n"
+			await log(
+				bot,
+				"\n".join([
+					f"Failed to send message to chat {chat_id}:",
+					f"{format_exception(e)}",
+					"",
+					"Message to send:",
+					f"{text}"
+				])
 			)
 			# Reraise exception
 			raise e

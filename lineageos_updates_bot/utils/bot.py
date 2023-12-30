@@ -17,6 +17,8 @@ from telegram.helpers import escape_markdown
 from typing import Dict, Optional, Union
 
 import config
+from lineageos_updates_bot.utils.error_handler import error_handler
+from lineageos_updates_bot.utils.logging import log
 from lineageos_updates_bot.utils.observer import Observer
 from lineageos_updates_bot.utils.poster import Poster
 
@@ -63,6 +65,8 @@ class LineageOSUpdatesBot:
 		self.application.add_handler(CommandHandler(["lineageos_updates"], self.lineageos_updates))
 		self.application.add_handler(CommandHandler(["when"], self.when))
 
+		self.application.add_error_handler(error_handler)
+
 		# Finish initialization
 		loop.run_until_complete(self.application.bot.set_my_commands(self.commands)) # type: ignore
 		loop.run_until_complete(self.application.start())
@@ -91,6 +95,9 @@ class LineageOSUpdatesBot:
 		loop.run_until_complete(self.application.updater.stop())
 		loop.run_until_complete(self.application.stop())
 		loop.run_until_complete(self.application.shutdown())
+
+	async def log(self, message: str):
+		await log(self.application.bot, message)
 
 	def user_is_admin(self, user_id: int):
 		return user_id in config.ADMINS
@@ -269,7 +276,12 @@ class LineageOSUpdatesBot:
 			return
 
 		self.observer.event.clear()
-		await update.message.reply_text("Observer disabled")
+
+		text = "Observer disabled"
+
+		await update.message.reply_text(text)
+
+		await self.log(text)
 
 	async def enable(self, update: Update, context: CallbackContext):
 		if not update.message:
@@ -280,7 +292,12 @@ class LineageOSUpdatesBot:
 			return
 
 		self.observer.event.set()
-		await update.message.reply_text("Observer enabled")
+
+		text = "Observer enabled"
+
+		await update.message.reply_text(text)
+
+		await self.log(text)
 
 	async def dump(self, update: Update, context: CallbackContext):
 		if not update.message:
@@ -331,7 +348,11 @@ class LineageOSUpdatesBot:
 
 		self.observer.set_start_date(date)
 
-		await update.message.reply_text(f"Start date set to {date.strftime('%Y/%m/%d, %H:%M:%S')}")
+		text = f"Start date set to {date.strftime('%Y/%m/%d, %H:%M:%S')}"
+
+		await update.message.reply_text(text)
+
+		await self.log(text)
 
 	async def test_post(self, update: Update, context: CallbackContext):
 		if not update.message:

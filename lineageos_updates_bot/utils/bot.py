@@ -188,6 +188,8 @@ class LineageOSUpdatesBot:
 		text = (
 			f"Last build for {escape_markdown(device_info.oem, 2)} {escape_markdown(device_info.name, 2)} {escape_markdown(f'({codename})', 2)}:\n"
 			f"Date: {escape_markdown(last_update.date, 2)}\n"
+			f"Type: {escape_markdown(last_update.build_type, 2)}\n"
+			f"OS patch level: `{escape_markdown(last_update.os_patch_level, 2)}`\n"
 			f"Download: [{escape_markdown(last_update.ota_zip.filename, 2)}]({escape_markdown(last_update.ota_zip.url, 2)}) {escape_markdown(f'({naturalsize(last_update.ota_zip.size)})', 2)}\n"
 		)
 

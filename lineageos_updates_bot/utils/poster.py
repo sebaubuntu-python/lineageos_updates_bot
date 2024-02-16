@@ -20,7 +20,7 @@ class Poster:
 	async def post(self, codename: str, update: Build, bot: Bot, chat_id: Union[str, int]):
 		chat = await bot.get_chat(chat_id=chat_id)
 		device_data = await AsyncV2Api.get_device(codename)
-		lineageos_version = device_data.versions[-1]
+		lineageos_version = update.version
 
 		text = (
 			f"{escape_markdown(f'#{codename}', 2)} {escape_markdown(f'#{LINEAGEOS_TO_ANDROID_VERSION[lineageos_version].version_short.lower()}', 2)}\n"
@@ -29,6 +29,8 @@ class Poster:
 			f"Device informations: [Here]({escape_markdown(device_data.info_url, 2)})\n"
 			f"\n"
 			f"Date: {escape_markdown(update.date, 2)}\n"
+			f"Type: {escape_markdown(update.build_type, 2)}\n"
+			f"OS patch level: `{escape_markdown(update.os_patch_level, 2)}`\n"
 			f"Download: [{escape_markdown(update.ota_zip.filename, 2)}]({escape_markdown(update.ota_zip.url, 2)}) {escape_markdown(f'({naturalsize(update.ota_zip.size)})', 2)}\n"
 		)
 

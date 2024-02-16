@@ -7,10 +7,11 @@
 from asyncio import Event, sleep
 from datetime import datetime
 from liblineage.updater.v2 import AsyncV2Api, SyncV2Api
+from liblineage.updater.v2.build import Build
 from sebaubuntu_libs.libexception import format_exception
 from sebaubuntu_libs.liblogging import LOGE, LOGI
 from telegram import Bot
-from typing import Dict, Union
+from typing import Dict, Optional, Union
 
 from lineageos_updates_bot.utils.poster import Poster
 
@@ -50,10 +51,14 @@ class Observer:
 					LOGI(f"No updates for {device}")
 					continue
 
-				last_update = response[0]
+				last_update: Optional[Build] = None
 				for update in response:
-					if update.datetime > last_update.datetime:
+					if not last_update or update.datetime > last_update.datetime:
 						last_update = update
+
+				if not last_update:
+					LOGI(f"No updates for {device}")
+					continue
 
 				build_date = last_update.datetime
 				if device in self.last_device_post and build_date <= self.last_device_post[device]:

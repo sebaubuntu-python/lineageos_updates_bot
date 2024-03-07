@@ -11,7 +11,7 @@ repository = "https://github.com/sebaubuntu-python/lineageos_updates_bot"
 python = "^3.8"
 humanize = "^4.9.0"
 liblineage = "^1.4.2"
-python-telegram-bot = "^20.8"
+python-telegram-bot = "^21.0"
 sebaubuntu-libs = "^1.4.2"
 
 [tool.poetry.dev-dependencies]

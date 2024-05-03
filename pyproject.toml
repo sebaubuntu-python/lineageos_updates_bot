@@ -12,7 +12,7 @@ python = "^3.8"
 humanize = "^4.9.0"
 liblineage = "^1.4.2"
 python-telegram-bot = "^21.1"
-sebaubuntu-libs = "^1.4.2"
+sebaubuntu-libs = "^1.4.4"
 
 [tool.poetry.dev-dependencies]
 

@@ -487,13 +487,13 @@ files = [
 
 [[package]]
 name = "liblineage"
-version = "1.4.3"
+version = "1.4.4"
 description = "LineageOS utils library"
 optional = false
 python-versions = "<4.0,>=3.8"
 files = [
-    {file = "liblineage-1.4.3-py3-none-any.whl", hash = "sha256:f1d315825e4eb3e76fadecd7b7273b9e505ee7f54a5056c8a36d91b3261e0979"},
-    {file = "liblineage-1.4.3.tar.gz", hash = "sha256:a1d293d846badbb027efa1026ba70db3b14e8b6561f25ea73023a65a74b7b1b5"},
+    {file = "liblineage-1.4.4-py3-none-any.whl", hash = "sha256:178cecf7eeda6997efd9010c3eaf8dc6686f7bf08191cd2f0ecfe694cce88dc2"},
+    {file = "liblineage-1.4.4.tar.gz", hash = "sha256:8e86231207c97e83ab0d949d3044bc16293264ff4a3ff58bad6baaae44b2260f"},
 ]
 
 [package.dependencies]
@@ -896,4 +896,4 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.8"
-content-hash = "4da714846d7736d7f3174758e5cacfc7e5c7bbc823075a50a2bf4b27b6c5bec2"
+content-hash = "575659bf66cc5cf8b319f79ec9cf94a5743d40297426ac77cc83caf6d0756619"

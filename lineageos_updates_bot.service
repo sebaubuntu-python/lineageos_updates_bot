@@ -6,7 +6,7 @@ After=network-online.target
 [Service]
 # Change WorkingDirectory with the directory where you have lineageos_updates_bot configs
 WorkingDirectory=/home/seba/lineageos_updates_bot
-ExecStart=/usr/bin/python3 -m lineageos_updates_bot
+ExecStart=bash -c '. venv/bin/activate && python -m lineageos_updates_bot'
 Type=simple
 Restart=always
 RestartSec=5

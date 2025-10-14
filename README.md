@@ -4,18 +4,18 @@
 
 LineageOS updates Telegram bot
 
-Requires Python 3.8 or greater
+Requires Python 3.9 or greater
 
 ## Installation
 
 ```sh
-pip3 install lineageos_updates_bot
+pip install lineageos_updates_bot
 ```
 
 ## Instructions
 
 ```sh
-python3 -m lineageos_updates_bot
+python -m lineageos_updates_bot
 ```
 
 ## License

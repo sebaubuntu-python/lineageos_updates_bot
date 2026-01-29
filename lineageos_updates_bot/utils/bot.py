@@ -4,7 +4,7 @@
 # SPDX-License-Identifier: MIT
 #
 
-from asyncio import CancelledError, Task, get_event_loop
+from asyncio import CancelledError, Task, get_event_loop, new_event_loop, set_event_loop
 from datetime import datetime
 from humanize import naturalsize
 from liblineage.hudson.build_target import BuildTarget
@@ -53,7 +53,11 @@ class LineageOSUpdatesBot:
 		])
 
 	def run(self):
-		loop = get_event_loop()
+		try:
+			loop = get_event_loop()
+		except RuntimeError:
+			loop = new_event_loop()
+			set_event_loop(loop)
 
 		# Start the bot
 		loop.run_until_complete(self.application.initialize())

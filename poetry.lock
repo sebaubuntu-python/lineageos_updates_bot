@@ -636,14 +636,14 @@ all = ["flake8 (>=7.1.1)", "mypy (>=1.11.2)", "pytest (>=8.3.2)", "ruff (>=0.6.2
 
 [[package]]
 name = "liblineage"
-version = "1.6.0"
+version = "1.6.1"
 description = "LineageOS utils library"
 optional = false
 python-versions = "<4.0,>=3.9"
 groups = ["main"]
 files = [
-    {file = "liblineage-1.6.0-py3-none-any.whl", hash = "sha256:0c72005e20fa6f8bd012cd0e06a8ba7a42629f2468a892bf0ec04a50a1e984ba"},
-    {file = "liblineage-1.6.0.tar.gz", hash = "sha256:0082bbea2fd6fff85e522328de107094c4ce98aabac9378caceef4a98ff4a438"},
+    {file = "liblineage-1.6.1-py3-none-any.whl", hash = "sha256:0d9a1a877f55e15f716ced21038f100ea385f8cf56555fbeedb407ca82a272e6"},
+    {file = "liblineage-1.6.1.tar.gz", hash = "sha256:e566773165a20a14c8b7d74c5d4a6aeb04d638547e1d657041bc9865ededcdc2"},
 ]
 
 [package.dependencies]
@@ -1300,4 +1300,4 @@ propcache = ">=0.2.1"
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.9"
-content-hash = "55a91bcebb036ee6dafd1ad166f9b2f05f58195bc56edbb7e00569790024c70d"
+content-hash = "2cf02f67e41bbf424f8ad1f1a806a4867dde8a7c5660f105803716aaec936f4d"

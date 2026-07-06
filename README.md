@@ -22,8 +22,7 @@ python -m lineageos_updates_bot
 
 ```
 #
-# Copyright (C) 2023 Sebastiano Barezzi
-#
+# SPDX-FileCopyrightText: Sebastiano Barezzi
 # SPDX-License-Identifier: MIT
 #
 ```

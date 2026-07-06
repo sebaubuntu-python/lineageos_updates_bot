@@ -1,6 +1,5 @@
 #
-# Copyright (C) 2023 Sebastiano Barezzi
-#
+# SPDX-FileCopyrightText: Sebastiano Barezzi
 # SPDX-License-Identifier: MIT
 #
 """LineageOS updates Telegram bot."""

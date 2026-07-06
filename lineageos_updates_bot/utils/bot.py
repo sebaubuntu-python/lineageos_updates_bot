@@ -253,13 +253,13 @@ class LineageOSUpdatesBot:
 		try:
 			device_data = await AsyncV2Api.get_device(codename)
 		except Exception:
-			await update.message.reply_text(f"Error: Device not found")
+			await update.message.reply_text("Error: Device not found")
 			return
 
 		try:
 			build_target = BuildTarget.get_device(codename)
 		except Exception:
-			await update.message.reply_text(f"Error: Device not found")
+			await update.message.reply_text("Error: Device not found")
 			return
 
 		device_info = (

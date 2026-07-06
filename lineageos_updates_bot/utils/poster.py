@@ -30,7 +30,7 @@ class Poster:
 			f"\n"
 			f"Date: {escape_markdown(update.date, 2)}\n"
 			f"Type: {escape_markdown(update.build_type, 2)}\n"
-			f"OS patch level: `{escape_markdown(update.os_patch_level, 2)}`\n"
+			f"OS patch level: `{escape_markdown(update.ota_zip.os_patch_level if update.ota_zip.os_patch_level else 'N/A', 2)}`\n"
 			f"Download: [{escape_markdown(update.ota_zip.filename, 2)}]({escape_markdown(update.ota_zip.url, 2)}) {escape_markdown(f'({naturalsize(update.ota_zip.size)})', 2)}\n"
 		)
 

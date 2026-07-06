@@ -8,10 +8,21 @@ from sebaubuntu_libs.libexception import format_exception
 from sebaubuntu_libs.liblogging import LOGE
 from telegram import Update
 from telegram.ext import CallbackContext
+from typing import Optional
 
 from lineageos_updates_bot.utils.logging import log
 
-async def error_handler(update: Update, context: CallbackContext):
+async def error_handler(update: Optional[object], context: CallbackContext):
+	if not update:
+		LOGE("Error encountered, but no update is available.")
+		LOGE(f"Error: {format_exception(context.error)}")
+		return
+
+	if not isinstance(update, Update):
+		LOGE("Error encountered, but update is not of type Update.")
+		LOGE(f"Error: {format_exception(context.error)}")
+		return
+
 	formatted_error = "Error encountered!\n"
 	if update:
 		if update.effective_chat:
